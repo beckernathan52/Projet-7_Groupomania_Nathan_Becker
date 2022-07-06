@@ -1,30 +1,36 @@
 <template>
-  <nav>
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </nav>
+  <Header></Header>
+
   <router-view/>
 </template>
 
+<script>
+import Header from "@/components/Header";
+export default {
+  components: {Header}
+}
+</script>
+
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
+
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+  font-family: 'Lato', sans-serif;
+  color: #4E5166;
 }
 
-nav {
-  padding: 30px;
+body{
+  max-width: 1200px;
+  margin: 0 auto;
+
+}
+
+a{
+  text-decoration: none;
 }
 
 nav a {
   font-weight: bold;
   color: #2c3e50;
-}
-
-nav a.router-link-exact-active {
-  color: #42b983;
 }
 </style>
