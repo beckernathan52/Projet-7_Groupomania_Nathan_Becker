@@ -1,25 +1,32 @@
-import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-
-const routes: Array<RouteRecordRaw> = [
-  {
-    path: '/',
-    name: 'home',
-    component: HomeView
-  },
-  {
-    path: '/about',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
-  }
-]
+import { createRouter, createWebHashHistory } from 'vue-router'
 
 const router = createRouter({
   history: createWebHashHistory(),
-  routes
+  routes: [
+    {
+      path: '/',
+      name: "Home",
+      component: () => import('../views/Home.vue')
+    },
+    {
+      path: '/login',
+      name: 'Login',
+      component: () => import('../views/Login.vue')
+    },
+    {
+      path: '/signup',
+      name: 'Signup',
+      component: () => import('../views/Signup.vue')
+    },
+  ],
+})
+
+// Empêche l'utilisateur d'accéder aux routes qui nécessite une authentification
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = localStorage.getItem("token")
+  if ((to.name !== 'Login' && !isAuthenticated) && (to.name !== 'Signup' && !isAuthenticated)) next({ name: 'Login' })
+  else next()
 })
 
 export default router
+

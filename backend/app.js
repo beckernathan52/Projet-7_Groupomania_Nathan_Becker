@@ -2,9 +2,22 @@
 import express from 'express'
 import dotenv from 'dotenv'
 dotenv.config();
+import {database} from "./models/index.js";
+
+// Importation des routes
+import {routerUser} from "./routes/user.js";
 
 // Création de l'application Express
 const appExpress = express()
+
+// Connexion à la base de données MySQL
+try {
+    // Automatise la création des tables
+    await database.sync({alter:true})
+    console.log('Connection Sequelize to MySQL > successful');
+} catch (error) {
+    console.error('Unable to connect sequelize to the database:', error);
+}
 
 // Analyse du corps de la requête
 appExpress.use(express.json());
@@ -17,6 +30,8 @@ appExpress.use((req, res, next) => {
     next();
 })
 
+// Routes
+appExpress.use('/api/auth',  routerUser)
 
 // Exportation de l'application Express
 export {appExpress}
