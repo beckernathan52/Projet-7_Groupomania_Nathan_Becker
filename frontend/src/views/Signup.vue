@@ -1,28 +1,29 @@
 <template>
+  <Header></Header>
   <div class="signup">
     <form>
       <h2>Inscription</h2>
       <div class="input-group">
         <label for="name">Nom</label>
-        <input id="name" type="text" placeholder="Nom" v-model="dataForm.lastname" @input="validLastName">
-        <p>{{errorMsgLastName}}</p>
+        <input id="name" type="text" placeholder="Nom" v-model="dataForm.lastName" @input="validLastName">
+        <p>{{error.MsgLastName}}</p>
       </div>
       <div class="input-group">
-        <label for="firstname">Prénom</label>
-        <input id="firstname" type="text" placeholder="Prénom" v-model="dataForm.firstname" @input="validFirstName">
-        <p>{{errorMsgFirstName}}</p>
+        <label for="firstName">Prénom</label>
+        <input id="firstName" type="text" placeholder="Prénom" v-model="dataForm.firstName" @input="validFirstName">
+        <p>{{error.MsgFirstName}}</p>
       </div>
       <div class="input-group">
         <label for="email">Email</label>
         <input id="email" type="email" placeholder="Email" v-model="dataForm.email" @input="validEmail">
-        <p>{{errorMsgEmail}}</p>
+        <p>{{error.MsgEmail}}</p>
       </div>
       <div class="input-group">
         <label for="password">Mot de passe</label>
         <input id="password" type="password" placeholder="Mot de passe" v-model="dataForm.password" @input="validPassword">
-        <p>{{errorMsgPassword}}</p>
+        <p>{{error.MsgPassword}}</p>
       </div>
-      <span>{{errorMsg}}</span>
+      <span>{{error.Msg}}</span>
       <button type="submit" @click="formSubmit">S'inscrire</button>
       <p>Je possède déjà un compte ? <br>Cliquez ici: <router-link to="/login">"Se connecter"</router-link></p>
     </form>
@@ -30,115 +31,108 @@
 </template>
 
 <script>
+import router from "@/router";
+import Header from "@/components/Header";
+
 export default {
   name: `Signup`,
+  components: {Header},
   data() {
     return {
       dataForm: {
-        lastname: null,
-        firstname: null,
+        lastName: null,
+        firstName: null,
         email: null,
         password: null,
       },
-      errorMsg: null,
-      errorMsgLastName: null,
-      errorMsgFirstName: null,
-      errorMsgEmail: null,
-      errorMsgPassword: null,
+      error:{
+        Msg: null,
+        MsgLastName: null,
+        MsgFirstName: null,
+        MsgEmail: null,
+        MsgPassword: null,
+      }
     }
   },
   methods: {
-
     /* Vérifie le format de l'email */
     validEmail() {
-      const data = {
-        ...this.dataForm
-      }
-      this.errorMsgEmail = ""
-      if (! /^\w+(\.-]?\w+)*@\w+([-]?\w+)*(\.\w{2,10})+$/.test(data.email) || data.email === null) {
-        this.errorMsgEmail = "Email au format invalide!"
+      this.error.MsgEmail = ""
+      //eslint-disable-next-line
+      if (! /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(this.dataForm.email) || this.dataForm.email === null) {
+        this.error.MsgEmail = "Email au format invalide!"
+
         return false
       }
       return true
     },
 
     validFirstName() {
-      const data = {
-        ...this.dataForm
-      }
-      this.errorMsgFirstName = ""
+      this.error.MsgFirstName = ""
       /* Vérifie le format du prénom */
-      if (! /^([A-Za-z]{3,20})?([-]{0,1})?([A-Za-z]{3,20})$/.test(data.firstname) || data.firstname === null) {
-        this.errorMsgFirstName = "Prénom au format incorrect."
+      if (! /^([A-Za-z]{3,20})?([-]{0,1})?([A-Za-z]{3,20})$/.test(this.dataForm.firstName) || this.dataForm.firstName === null) {
+        this.error.MsgFirstName = "Prénom au format incorrect."
         return false
       }
       return true
     },
 
     validLastName() {
-      const data = {
-        ...this.dataForm
-      }
-      this.errorMsgLastName = ""
+      this.error.MsgLastName = ""
       /* Vérifie le format du nom */
-      if (! /^([A-Za-z]{3,20})?([-]{0,1})?([A-Za-z]{3,20})$/.test(data.lastname ) || data.lastname === null) {
-        this.errorMsgLastName = "Nom au format incorrect."
+      if (! /^([A-Za-z]{3,20})?([-]{0,1})?([A-Za-z]{3,20})$/.test(this.dataForm.lastName ) || this.dataForm.lastName === null) {
+        this.error.MsgLastName = "Nom au format incorrect."
         return false
       }
       return true
     },
 
     validPassword() {
-      const data = {
-        ...this.dataForm
-      }
-      this.errorMsgPassword=""
+      this.error.MsgPassword=""
       /* Vérifie le format du mot de passe */
-      if (! /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[-+!*$@%_])([-+!*$@%_\w]{8,20})$/.test(data.password) || data.password === null) {
-        this.errorMsgPassword = "Mot de passe au format invalide, il doit contenir entre 8 et 20 caractères, 1 majuscule, 1 chiffre et 1 caractère spécial."
+      if (! /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[-+!*$@%_])([-+!*$@%_\w]{8,20})$/.test(this.dataForm.password) || this.dataForm.password === null) {
+        this.error.MsgPassword = "Mot de passe au format invalide, il doit contenir entre 8 et 20 caractères, 1 majuscule, 1 chiffre et 1 caractère spécial."
         return false
       }
       return true
     },
 
-    formSubmit() {
+    async formSubmit () {
       const data = {
         ...this.dataForm
       }
-
-      //console.log(this.validLastName())
-
-      /*const login = {
-        email: this.dataForm.email,
-        password: this.dataForm.password
-      }*/
 
       const isValidFirstName = this.validFirstName()
       const isValidLastName = this.validLastName()
       const isValidEmail = this.validEmail()
       const isValidPassword = this.validPassword()
 
-
       /* Vérifie l'ensemble des champs sont remplis */
       if (!isValidFirstName || !isValidLastName || !isValidEmail || !isValidPassword) {
-        this.errorMsg = "Une erreur est survenue! Veuillez vérifier les informations saisies."
+        alert("Une erreur est survenue! Veuillez vérifier les informations saisies.")
         return
       }
 
-      console.log(data)
-
       // Envoi une requête à l'API
-      /*try {
-        fetch("http://localhost:3000/api/users/signup", {
+      try {
+        const response = await fetch("http://localhost:3000/api/auth/signup", {
           method: "POST",
           body: JSON.stringify(data),
           headers: {"Content-Type": "application/json"}
         })
+
+        if (response.status === 403) {
+          this.error.Msg = "Adresse mail déjà utilisé !"
+          return
+        }
+
+        if (response.status === 201) {
+          alert("Votre compte a bien été créé, vous allez être rédirigé vers la page de connexion.")
+          await router.push({path:'/login'})
+        }
       } catch (error) {
         console.log(error)
-      }*/
-
-
+      }
     }
   }
 }
@@ -199,7 +193,7 @@ button{
   color: white;
   font-family: 'Lato', sans-serif;
   font-size: 15px;
-  margin-top: 20px;
+  margin-top: 30px;
 }
 
 span{

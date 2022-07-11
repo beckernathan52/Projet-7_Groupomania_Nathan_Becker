@@ -12,7 +12,8 @@ const appExpress = express()
 
 // Connexion à la base de données MySQL
 try {
-    await database.sequelize.authenticate();
+    // Automatise la création des tables
+    await database.sync({alter:true})
     console.log('Connection Sequelize to MySQL > successful');
 } catch (error) {
     console.error('Unable to connect sequelize to the database:', error);
@@ -30,7 +31,7 @@ appExpress.use((req, res, next) => {
 })
 
 // Routes
-appExpress.use('/api/users',  routerUser)
+appExpress.use('/api/auth',  routerUser)
 
 // Exportation de l'application Express
 export {appExpress}

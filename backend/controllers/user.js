@@ -6,7 +6,6 @@ dotenv.config();
 
 // Importation des informations de l'utilisateur
 import { User } from '../models/user.js'
-import {where} from "sequelize";
 
 // Vérification du format de l'email
 const validateEmail = (req) => {
@@ -20,9 +19,6 @@ const validatePassword = (req) => {
 
 // Inscription
 const signup = async (req, res, next) => {
-
-    console.log("Voila la réponse du back pour l'inscription")
-
     // Vérifie si l'email et le mot de passe ont un format valide
     const emailValid = validateEmail(req)
     const passwordValid = validatePassword(req)
@@ -38,7 +34,7 @@ const signup = async (req, res, next) => {
         // Crée un hash crypté du mot de passe de l'utilisateur, hash 10 fois
         const hash = await bcrypt.hash(req.body.password, 10)
         const userFound = await User.findOne({where: {email:req.body.email}})
-        {}
+
         // Si l'adresse mail est déjà utilisé
         if (userFound) {
             return res.status(403).json({ error: 'Adresse mail déjà utilisé !' })
@@ -59,7 +55,6 @@ const signup = async (req, res, next) => {
 
         // Requête traitée avec succès et création d’un utilisateur
         return res.status(201).json({ message: 'Utilisateur créé !' })
-
     } catch (error) {
         res.status(500).json()
         console.log(error)
@@ -68,7 +63,6 @@ const signup = async (req, res, next) => {
 
 // Connexion
 const login = async (req, res, next) => {
-
     // Vérifie si l'email et le mot de passe ont un format valide
     const emailValid = validateEmail(req)
     const passwordValid = validatePassword(req)
@@ -82,7 +76,7 @@ const login = async (req, res, next) => {
 
     try {
         // Tente de trouver une adresse mail identique entre la base de données et la requête
-        const userFound = await User.findOne({ email: req.body.email })
+        const userFound = await User.findOne({where: {email:req.body.email}})
 
         // Si aucun utilisateur n'a été trouver
         if (!userFound) {
@@ -98,7 +92,7 @@ const login = async (req, res, next) => {
         }
 
         // Si le mot de passe et l'email sont valide
-        res.status(200).json({ userId: userFound._id, token: jwt.sign({ userId: userFound._id }, process.env.RANDOM_TOKEN, { expiresIn: '24h' })})
+        res.status(200).json({ userId: userFound.id, token: jwt.sign({ userId: userFound.id }, process.env.RANDOM_TOKEN, { expiresIn: '24h' })})
 
     } catch (error) {
         res.status(500).json()
