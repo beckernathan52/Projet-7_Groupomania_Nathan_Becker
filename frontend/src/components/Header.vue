@@ -4,9 +4,8 @@
       <img src="../assets/logos/icon-left-font.png" alt="Logo Groupomania">
     </router-link>
     <nav v-if="isAuthenticated">
-      <router-link to="/" @click="logout" class="link"><i class="fas fa-sign-out-alt"></i> Déconnexion</router-link>
-      <router-link to="/"><i class="fas fa-users"></i>Membres</router-link>
       <router-link to="/"><i class="fas fa-user"></i>Profil</router-link>
+      <router-link to="/" @click="logout" class="link"><i class="fas fa-sign-out-alt"></i> Déconnexion</router-link>
     </nav>
     <nav v-else-if="!isAuthenticated">
       <router-link to="/login">Se connecter</router-link> |
@@ -16,7 +15,6 @@
 </template>
 
 <script>
-
 import router from "@/router"
 
 export default {
@@ -61,6 +59,7 @@ nav{
 
 nav a.router-link-exact-active {
   color: #FD2D01;
+  margin: 5px;
 }
 
 img{

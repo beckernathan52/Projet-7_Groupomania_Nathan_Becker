@@ -61,7 +61,6 @@ export default {
       //eslint-disable-next-line
       if (! /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(this.dataForm.email) || this.dataForm.email === null) {
         this.error.MsgEmail = "Email au format invalide!"
-
         return false
       }
       return true

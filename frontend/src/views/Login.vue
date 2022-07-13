@@ -15,7 +15,7 @@
       </div>
       <span>{{error.Msg}}</span>
       <button type="submit" @click="formSubmit">Se connecter</button>
-      <p>Je n'ai pas de compte ? <br>Cliquez ici: <router-link to="/signup">"S'inscrire'"</router-link></p>
+      <p>Je n'ai pas de compte ? <br>Cliquez ici: <router-link to="/signup">"S'inscrire"</router-link></p>
     </form>
   </div>
 </template>
@@ -62,7 +62,6 @@ export default {
     },
 
     async formSubmit() {
-
       const isValidEmail = this.validEmail()
       const isValidPassword = this.validPassword()
 

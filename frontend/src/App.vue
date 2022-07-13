@@ -17,6 +17,7 @@ export default {
 body{
   max-width: 1200px;
   margin: 0 auto;
+
 }
 a{
   text-decoration: none;
