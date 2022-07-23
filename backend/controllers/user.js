@@ -100,5 +100,16 @@ const login = async (req, res, next) => {
     }
 }
 
+const getAllUsers = async (req, res, next) => {
+    try {
+        const users = await User.findAll()
+
+        res.status(200).json(users)
+    } catch (error) {
+        res.status(500).json()
+        console.log(error)
+    }
+}
+
 // Exportation
 export {signup, login}

@@ -1,5 +1,4 @@
 <template>
-  <Header></Header>
   <div class="signup">
     <form>
       <h2>Inscription</h2>
@@ -24,7 +23,7 @@
         <p>{{error.MsgPassword}}</p>
       </div>
       <span>{{error.Msg}}</span>
-      <button type="submit" @click="formSubmit">S'inscrire</button>
+      <button type="submit" @click.prevent="signup">S'inscrire</button>
       <p>Je possède déjà un compte ? <br>Cliquez ici: <router-link to="/login">"Se connecter"</router-link></p>
     </form>
   </div>
@@ -32,11 +31,11 @@
 
 <script>
 import router from "@/router";
-import Header from "@/components/Header";
+import {validEmail, validPassword} from "@/common/utils";
 
 export default {
   name: `Signup`,
-  components: {Header},
+  components: {},
   data() {
     return {
       dataForm: {
@@ -55,20 +54,13 @@ export default {
     }
   },
   methods: {
-    /* Vérifie le format de l'email */
-    validEmail() {
-      this.error.MsgEmail = ""
-      //eslint-disable-next-line
-      if (! /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(this.dataForm.email) || this.dataForm.email === null) {
-        this.error.MsgEmail = "Email au format invalide!"
-        return false
-      }
-      return true
-    },
+    // Vérifie le format de l'email et du mot de passe
+    validEmail,
+    validPassword,
 
+    // Vérifie le format du prénom
     validFirstName() {
       this.error.MsgFirstName = ""
-      /* Vérifie le format du prénom */
       if (! /^([A-Za-z]{3,20})?([-]{0,1})?([A-Za-z]{3,20})$/.test(this.dataForm.firstName) || this.dataForm.firstName === null) {
         this.error.MsgFirstName = "Prénom au format incorrect."
         return false
@@ -76,9 +68,9 @@ export default {
       return true
     },
 
+    // Vérifie le format du nom
     validLastName() {
       this.error.MsgLastName = ""
-      /* Vérifie le format du nom */
       if (! /^([A-Za-z]{3,20})?([-]{0,1})?([A-Za-z]{3,20})$/.test(this.dataForm.lastName ) || this.dataForm.lastName === null) {
         this.error.MsgLastName = "Nom au format incorrect."
         return false
@@ -86,17 +78,9 @@ export default {
       return true
     },
 
-    validPassword() {
-      this.error.MsgPassword=""
-      /* Vérifie le format du mot de passe */
-      if (! /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[-+!*$@%_])([-+!*$@%_\w]{8,20})$/.test(this.dataForm.password) || this.dataForm.password === null) {
-        this.error.MsgPassword = "Mot de passe au format invalide, il doit contenir entre 8 et 20 caractères, 1 majuscule, 1 chiffre et 1 caractère spécial."
-        return false
-      }
-      return true
-    },
+    async signup () {
 
-    async formSubmit () {
+      // Récupération des informations saisies par l'utilisateur
       const data = {
         ...this.dataForm
       }
@@ -120,11 +104,13 @@ export default {
           headers: {"Content-Type": "application/json"}
         })
 
+        // Si l'email est déjà utilisé, affiche le message d'erreur
         if (response.status === 403) {
-          this.error.Msg = "Adresse mail déjà utilisé !"
+          this.error.MsgEmail= "Adresse mail déjà utilisé !"
           return
         }
 
+        // Si la réponse est positive, l'utilisateur est redirigé vers la page de connexion
         if (response.status === 201) {
           alert("Votre compte a bien été créé, vous allez être rédirigé vers la page de connexion.")
           await router.push({path:'/login'})
@@ -153,6 +139,7 @@ form{
   padding: 40px 20px;
   background: #FFD7D7;
   border-radius: 20px;
+  box-shadow: 0px 0px 35px 3px rgba(0,0,0,0.15);
 }
 
 label{
