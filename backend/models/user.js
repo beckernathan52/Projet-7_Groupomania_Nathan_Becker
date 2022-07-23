@@ -1,11 +1,12 @@
-import { DataTypes } from "sequelize";
+import {DataTypes, Model} from "sequelize";
 import {database} from "./index.js";
+import {Post} from "./post.js";
 
 const User = database.define("User" , {
     id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
         primaryKey: true,
+        defaultValue: DataTypes.UUIDV4,
+        type: DataTypes.UUID
     },
     firstName: {
         type: DataTypes.STRING,
@@ -32,6 +33,20 @@ const User = database.define("User" , {
         type: DataTypes.BOOLEAN,
         defaultValue: false
     }
+})
+
+// Un Post appartient à un utilisateur
+Post.belongsTo(User, {
+    onDelete: 'cascade',
+    foreignKey: { name: 'userId', allowNull: false},
+    hooks: true
+})
+
+// Un utilisateur a plusieurs Posts
+User.hasMany(Post,{
+    onDelete: 'cascade',
+    foreignKey: { name: 'userId', allowNull: false},
+    hooks: true
 })
 
 export {User}

@@ -3,46 +3,36 @@
     <router-link to="/">
       <img src="../assets/logos/icon-left-font.png" alt="Logo Groupomania">
     </router-link>
-    <nav v-if="isAuthenticated">
-      <router-link to="/" @click="logout" class="link"><i class="fas fa-sign-out-alt"></i> Déconnexion</router-link>
-      <router-link to="/"><i class="fas fa-users"></i>Membres</router-link>
-      <router-link to="/"><i class="fas fa-user"></i>Profil</router-link>
+    <nav v-if="userStore.user">
+      <router-link to="/" @click="logout" class="link"><i class="fas fa-sign-out-alt"></i>Déconnexion</router-link>
     </nav>
-    <nav v-else-if="!isAuthenticated">
-      <router-link to="/login">Se connecter</router-link> |
-      <router-link to="/signup">S'inscrire</router-link>
+    <nav v-else-if="!userStore.user">
+      <router-link to="/login"><i class="fa-solid fa-right-to-bracket"></i>Se connecter</router-link>|
+      <router-link to="/signup"><i class="fa-solid fa-user-plus"></i>S'inscrire</router-link>
     </nav>
   </header>
 </template>
 
 <script>
-
 import router from "@/router"
+import {useUserStore} from "@/store/user";
 
 export default {
   name: `Header`,
-  data() {
+  setup() {
+    const userStore = useUserStore()
     return {
-      isAuthenticated: this.getConnectedUser()
+      userStore
     }
   },
-  props: {
-
-  },
-  components: {},
-
   methods: {
     logout() {
+      this.userStore.logout()
       router.push({ path: '/login' })
       localStorage.clear()
     },
-    getConnectedUser () {
-      const user = localStorage.getItem('token')
-      return user
-    }
-  }
+  },
 }
-
 </script>
 
 <style scoped>
@@ -55,12 +45,20 @@ header{
 }
 
 nav{
-  width: 30%;
+  width: 20%;
   text-align: right;
+}
+
+nav a {
+  margin: 5px;
 }
 
 nav a.router-link-exact-active {
   color: #FD2D01;
+}
+
+nav i {
+  margin-right: 5px;
 }
 
 img{

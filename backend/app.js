@@ -6,6 +6,7 @@ import {database} from "./models/index.js";
 
 // Importation des routes
 import {routerUser} from "./routes/user.js";
+import {routerPost} from "./routes/post.js";
 
 // Création de l'application Express
 const appExpress = express()
@@ -32,6 +33,7 @@ appExpress.use((req, res, next) => {
 
 // Routes
 appExpress.use('/api/auth',  routerUser)
+appExpress.use('/api/posts', routerPost)
 
 // Exportation de l'application Express
 export {appExpress}

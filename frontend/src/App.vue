@@ -1,11 +1,15 @@
 <template>
+  <Header></Header>
   <router-view/>
 </template>
 
 <script>
+import Header from "@/components/Header";
+
 export default {
-  components: {}
+  components: {Header}
 }
+
 </script>
 
 <style>
@@ -17,6 +21,7 @@ export default {
 body{
   max-width: 1200px;
   margin: 0 auto;
+
 }
 a{
   text-decoration: none;
