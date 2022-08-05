@@ -12,25 +12,59 @@
 <script>
 import GetAllPosts from "@/components/Posts";
 import CreatePost from "@/components/CreatePost";
+import {useUserStore} from "@/store/user";
 
+//@click="nom de l'evenment" sur create post
 export default {
   name: `Home`,
   components: {
     CreatePost,
     GetAllPosts
   },
+  setup() {
+    const userStore = useUserStore()
+    return {
+      userStore
+    }
+  },
+  beforeMount() {
+    this.testerror()
+
+  },
+  methods: {
+    testerror () {
+      const test = this.userStore.user
+      console.log(test)
+
+    }
+  }
 }
+
+
+
 </script>
 
 <style scoped>
 #post, #news{
-  width: 50%;
+  width: 55%;
   margin: 0 auto;
 }
 
 #news{
   margin-top: 40px;
-  border-top: solid #FD2D01 2px;
-
 }
+
+  /* Tablette Version */
+  @media screen and (max-width: 992px){
+    #post, #news{
+      width: 65%;
+    }
+  }
+
+    /* Smartphone Version */
+    @media screen and (max-width: 768px){
+      #post, #news{
+        width: 90%;
+      }
+    }
 </style>

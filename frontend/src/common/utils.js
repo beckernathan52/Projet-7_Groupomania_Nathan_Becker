@@ -20,6 +20,15 @@ function validPassword() {
     return true
 }
 
+function validText() {
+    this.error.MsgText = ""
+    if (!this.dataForm.text?.trim()) {
+        this.error.MsgText = "Ce champ est obligatoire !"
+        return false
+    }
+    return true
+}
+
 function formattingDate(post) {
     post.createdAt = post.createdAt.split('.')[0]
     const hours = post.createdAt.split('T')[1]
@@ -27,4 +36,7 @@ function formattingDate(post) {
     post.createdAt = date + " à " + hours
 }
 
-export {validEmail, validPassword, formattingDate}
+
+
+
+export {validEmail, validPassword, formattingDate, validText}

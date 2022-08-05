@@ -77,9 +77,7 @@ export default {
       }
       return true
     },
-
     async signup () {
-
       // Récupération des informations saisies par l'utilisateur
       const data = {
         ...this.dataForm
@@ -124,31 +122,32 @@ export default {
 </script>
 
 <style scoped>
+/* Formulaire d'inscription */
 .signup{
   display: flex;
   justify-content: center;
   font-weight: bold;
 }
 
-form{
+.signup form{
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 30%;
-  margin: 100px;
+  margin: 80px auto;
   padding: 40px 20px;
   background: #FFD7D7;
   border-radius: 20px;
-  box-shadow: 0px 0px 35px 3px rgba(0,0,0,0.15);
+  box-shadow: 0 0 35px 3px rgba(0,0,0,0.15);
 }
 
-label{
+.input-group label{
   display: flex;
   align-items: flex-start;
   margin-bottom: 5px;
 }
 
-input{
+.input-group input{
   height: 30px;
   border: none;
   border-radius: 10px ;
@@ -170,7 +169,7 @@ input{
   font-size: 12px;
 }
 
-button{
+form button{
   width: 120px;
   height: 35px;
   background: #4E5166;
@@ -180,10 +179,31 @@ button{
   font-family: 'Lato', sans-serif;
   font-size: 15px;
   margin-top: 30px;
+  cursor: pointer;
+  transition: all 0.4s;
 }
 
-span{
+form button:hover{
+  opacity: 0.9;
+  box-shadow: 0 10px 19px -4px rgba(0,0,0,0.4);
+}
+
+form span{
   text-align: center;
   color: #FD2D01;
 }
+
+  /* Tablette Version */
+  @media screen and (max-width: 992px){
+    .signup form{
+      width: 50%;
+    }
+  }
+
+    /* Smartphone Version */
+    @media screen and (max-width: 500px){
+      .signup form{
+        width: 80%;
+      }
+    }
 </style>

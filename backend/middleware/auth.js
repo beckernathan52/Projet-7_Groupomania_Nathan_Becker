@@ -12,8 +12,11 @@ const authentication = (req, res, next) => {
         const decodedToken = jwt.verify(token, process.env.RANDOM_TOKEN);
         // Récupération de l'ID utilisateur
         const userId = decodedToken.userId;
-        // Ajout de l'ID utilisateur à la requête
-        req.auth = { userId };
+        // Récupération du statut Administrateur
+        const isAdmin = decodedToken.isAdmin
+
+        // Ajout de l'ID utilisateur et du statut Administeur à la requête
+        req.auth = { userId, isAdmin };
 
         next();
 

@@ -13,9 +13,10 @@ const Post = database.define("Post" , {
     },
     filePicture: {
         type: DataTypes.STRING,
-        defaultValue: 'defaultUserPicture.png'
+        defaultValue: 'defaultPostPicture.png'
+        //allowNull: true
     },
-    likes: {
+    /*likes: {
         type: DataTypes.INTEGER,
         defaultValue: 0
     },
@@ -30,7 +31,7 @@ const Post = database.define("Post" , {
     usersDisliked: {
         type: DataTypes.STRING,
         defaultValue: '[]'
-    }
+    }*/
 })
 
 export {Post}

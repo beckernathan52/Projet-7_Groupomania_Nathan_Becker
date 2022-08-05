@@ -1,4 +1,4 @@
-import {DataTypes, Model} from "sequelize";
+import {DataTypes} from "sequelize";
 import {database} from "./index.js";
 import {Post} from "./post.js";
 

@@ -6,27 +6,30 @@ export const usePostStore = defineStore("post",{
         posts: [],
     }),
     actions: {
-        getPosts(dataPosts) {
+        setPosts(dataPosts) {
             // Récupère l'ensemble des posts connus de la base de données
             this.posts = dataPosts
         },
-        getNewPost(post){
+        setCreatedPost(post){
             // Récupère le post nouvellement crée
             this.post = post
+
             // Puis l'insère au début du tableau
+            if (!this.posts) {
+                this.posts = []
+            }
             this.posts.unshift(this.post)
+        },
+        deletePost(postId) {
+            this.posts = this.posts.filter((post) => post.id !== postId)
         }
     },
     getters: {
         allPosts () {
-            /// A voir avec Florian //////////////////////////////////////////////////////
-            // Se charge 2 fois à l'apparation de la page // vide et plein
             if (!this.posts) {
-                return null
+                return false
             }
-            const postArray = this.posts
-            //console.log(postArray)
-            return postArray
+            return this.posts
         }
     }
 })

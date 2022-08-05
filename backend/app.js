@@ -3,6 +3,8 @@ import express from 'express'
 import dotenv from 'dotenv'
 dotenv.config();
 import {database} from "./models/index.js";
+import path  from 'path';
+import { fileURLToPath } from 'url'
 
 // Importation des routes
 import {routerUser} from "./routes/user.js";
@@ -31,9 +33,13 @@ appExpress.use((req, res, next) => {
     next();
 })
 
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename);
+
 // Routes
 appExpress.use('/api/auth',  routerUser)
 appExpress.use('/api/posts', routerPost)
+appExpress.use('/images', express.static(path.join(__dirname, 'images')))
 
 // Exportation de l'application Express
 export {appExpress}

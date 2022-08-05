@@ -92,7 +92,7 @@ const login = async (req, res, next) => {
         }
 
         // Si le mot de passe et l'email sont valide
-        res.status(200).json({ userId: userFound.id, token: jwt.sign({ userId: userFound.id }, process.env.RANDOM_TOKEN, { expiresIn: '24h' })})
+        res.status(200).json({isAdmin: userFound.isAdmin, userId: userFound.id, token: jwt.sign({ userId: userFound.id, isAdmin: userFound.isAdmin }, process.env.RANDOM_TOKEN, { expiresIn: '24h' })})
 
     } catch (error) {
         res.status(500).json()

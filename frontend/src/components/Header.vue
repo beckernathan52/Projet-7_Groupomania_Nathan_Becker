@@ -4,10 +4,10 @@
       <img src="../assets/logos/icon-left-font.png" alt="Logo Groupomania">
     </router-link>
     <nav v-if="userStore.user">
-      <router-link to="/" @click="logout" class="link"><i class="fas fa-sign-out-alt"></i>Déconnexion</router-link>
+      <router-link to="/login" @click="logout" class="link"><i class="fas fa-sign-out-alt"></i>Déconnexion</router-link>
     </nav>
     <nav v-else-if="!userStore.user">
-      <router-link to="/login"><i class="fa-solid fa-right-to-bracket"></i>Se connecter</router-link>|
+      <router-link to="/login"><i class="fa-solid fa-right-to-bracket"></i>Se connecter</router-link>
       <router-link to="/signup"><i class="fa-solid fa-user-plus"></i>S'inscrire</router-link>
     </nav>
   </header>
@@ -40,12 +40,12 @@ header{
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 20px 20px 0px;
+  padding: 20px;
   border-bottom: solid #FD2D01 2px;
 }
 
 nav{
-  width: 20%;
+  width: 25%;
   text-align: right;
 }
 
@@ -65,6 +65,21 @@ img{
   width: 300px;
   height: 50px;
   object-fit: cover;
+}
+
+/* Tablette Version */
+@media screen and (max-width: 992px){
+  header{
+    flex-direction: column;
+    padding: 20px 20px 10px 20px;
+    align-content: center;
+  }
+  header nav{
+    margin-top: 20px;
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+  }
 }
 </style>
 
