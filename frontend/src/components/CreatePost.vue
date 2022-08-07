@@ -1,15 +1,15 @@
 <template>
   <h2><i class="fa-solid fa-share"></i>Exprimez-vous!</h2>
-  <form>
+  <form ref="form"  @submit.prevent="createPost">
     <div class="input-group">
       <label for="message"><i class="fa-solid fa-pen-to-square"></i>Écrivez une publication</label>
-      <input id="message" type="text" placeholder="Écrivez une publication" v-model="dataForm.text" @input="validText">
+      <input id="message" type="text" placeholder="Écrivez une publication" name="text" v-model="dataForm.text" @input="validText">
       <p>{{error.MsgText}}</p>
     </div>
     <label for="file"><i class="fa-solid fa-file"></i>Ajouter une image</label>
-    <input id="file" type="file">
-    <div class="btn">
-      <button @click.prevent="createPost" @add-Post="addPost">Publier</button>
+    <input id="file" type="file" @change="selectFile">
+    <div class="btn-content">
+      <button type="submit">Publier</button>
     </div>
   </form>
 </template>
@@ -17,7 +17,8 @@
 <script>
 import {useUserStore} from "@/store/user";
 import {usePostStore} from "@/store/post";
-import {formattingDate} from "@/common/utils";
+import {formattingDate, validText} from "@/common/utils";
+import router from "@/router";
 
 export default {
   name: "CreatePost",
@@ -33,52 +34,74 @@ export default {
     return {
       dataForm: {
         text: null,
+        file: null
       },
       error: {
         MsgText: null
       },
     }
   },
+  props: {
+    post: {}
+  },
   methods: {
-    // Vérifie si le champ "text" n'est pas vide
-    validText() {
-      this.error.MsgText = ""
-      if (!this.dataForm.text?.trim()) {
-        this.error.MsgText = "Ce champ est obligatoire !"
-        return false
-      }
-      return true
+    // Séléctionne l'image
+    selectFile(event) {
+      this.file = event.target.files[0]
     },
+
+    // Vérifie si le champ "text" n'est pas vide
+    validText,
+
     // Création d'un Post
     async createPost() {
       const isValidText = this.validText()
       if (!isValidText) {
         return
       }
+
       // Récupération des informations saisies par l'utilisateur
-      const formData = {
-        text: this.dataForm.text
+      const postBody = JSON.stringify(this.dataForm.text)
+      const postFile = this.file
+
+      const formData = new FormData()
+      formData.append('text', postBody)
+
+      // Si la requête contient une image
+      if (postFile) {
+        formData.append('filePicture', postFile)
       }
+
       // Envoi une requête à l'API
       try {
         const response = await fetch("http://localhost:3000/api/posts/create", {
           method: "POST",
-          body: JSON.stringify(formData),
-          headers: {"Authorization": `Bearer ${this.userStore.token}`, "Content-Type": "application/json"}
+          body: formData,
+          headers: {"Authorization": `Bearer ${this.userStore.token}`}
         })
+
         // Récupération de la réponse
         const post = await response.json()
 
-        // Modifie le format de la date avant l'envoi au store
-        formattingDate(post)
-
-        // Si la réponse est positive, envoi le nouveau Post au store
-        if (response.status === 201) {
-          this.postStore.getNewPost(post)
-          // Réinitialise le formulaire
-          document.querySelector('form').reset()
+        // Si le token arrive à expiration l'utilisateur est redirigé vers la page de connexion
+        if (response.status === 401 && post.error === "Erreur authentification") {
+          alert("Votre session arrive à expiration, veuillez vous reconnecter.")
+          localStorage.clear()
+          await router.push({path:'/login'})
         }
-        return
+
+        // Si la réponse est positive,
+        if (response.status === 201) {
+          // Modifie le format de la date
+          formattingDate(post)
+
+          // Envoi le nouveau Post au store
+          this.postStore.setCreatedPost(post)
+
+          // Réinitialise le formulaire
+          this.$refs[`form`].reset()
+          this.file = null
+        }
       } catch (error) {
         console.log(error)
       }
@@ -88,8 +111,18 @@ export default {
 </script>
 
 <style scoped>
+/* Base */
 h2{
-  margin-bottom: 5px;
+  margin-bottom: 15px;
+  position: relative;
+}
+
+h2::before{
+  content: " ";
+  border-bottom: solid #FD2D01 3px;
+  position: absolute;
+  width: 5em;
+  bottom: -5px;
 }
 
 i{
@@ -103,7 +136,7 @@ input, button, form{
 form{
   padding: 20px 30px;
   background: #FFD7D7;
-  box-shadow: 0px 0px 35px 3px rgba(0,0,0,0.15);
+  box-shadow: 0 0 35px 3px rgba(0,0,0,0.15);
 }
 
 .input-group {
@@ -121,6 +154,9 @@ label{
   display: flex;
   margin-bottom: 5px;
   align-items: center;
+}
+
+label, p{
   font-weight: bold;
 }
 
@@ -134,20 +170,27 @@ input, button{
   border: none;
 }
 
-.btn{
+.btn-content{
   display: flex;
   justify-content: center;
 }
 
-button{
+.btn-content button{
   width: 120px;
   background: #4E5166;
   color: white;
   font-family: 'Lato', sans-serif;
   font-size: 15px;
+  cursor: pointer;
+  transition: all 0.4s;
 }
 
-#message, button{
+.btn-content button:hover{
+  opacity: 0.9;
+  box-shadow: 0 10px 19px -4px rgba(0,0,0,0.4);
+}
+
+#message,.btn-content button{
   height: 30px;
 }
 </style>

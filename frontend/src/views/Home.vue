@@ -24,13 +24,25 @@ export default {
 
 <style scoped>
 #post, #news{
-  width: 50%;
+  width: 55%;
   margin: 0 auto;
 }
 
 #news{
   margin-top: 40px;
-  border-top: solid #FD2D01 2px;
-
 }
+
+  /* Tablette Version */
+  @media screen and (max-width: 992px){
+    #post, #news{
+      width: 65%;
+    }
+  }
+
+    /* Smartphone Version */
+    @media screen and (max-width: 768px){
+      #post, #news{
+        width: 90%;
+      }
+    }
 </style>

@@ -1,6 +1,7 @@
-import {DataTypes, Model} from "sequelize";
+import {DataTypes} from "sequelize";
 import {database} from "./index.js";
 import {Post} from "./post.js";
+import {Like} from "./like.js";
 
 const User = database.define("User" , {
     id: {
@@ -48,5 +49,14 @@ User.hasMany(Post,{
     foreignKey: { name: 'userId', allowNull: false},
     hooks: true
 })
+
+// Un Like appartient à un utilisateur
+Like.belongsTo(User, {
+    onDelete: 'cascade',
+    foreignKey: { name: 'userId', allowNull: false },
+    hooks: true
+})
+
+
 
 export {User}

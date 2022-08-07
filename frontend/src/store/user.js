@@ -17,7 +17,7 @@ export const useUserStore = defineStore("user",{
     getters: {
         user() {
             if (!this.token) {
-                return null
+                return false
             }
             const decodedToken = jwtDecode(this.token)
             return decodedToken
