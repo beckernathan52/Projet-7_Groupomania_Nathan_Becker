@@ -1,5 +1,6 @@
 import { DataTypes } from "sequelize";
 import {database} from "./index.js";
+import {Like} from "./like.js";
 
 const Post = database.define("Post" , {
     id: {
@@ -13,25 +14,31 @@ const Post = database.define("Post" , {
     },
     filePicture: {
         type: DataTypes.STRING,
-        defaultValue: 'defaultPostPicture.png'
-        //allowNull: true
+        defaultValue: '',
+        allowNull: true
     },
-    /*likes: {
-        type: DataTypes.INTEGER,
-        defaultValue: 0
+    hasUserLiked: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true
     },
-    dislikes: {
-        type: DataTypes.INTEGER,
-        defaultValue: 0
-    },
-    usersLiked: {
-        type: DataTypes.STRING,
-        defaultValue: '[]'
-    },
-    usersDisliked: {
-        type: DataTypes.STRING,
-        defaultValue: '[]'
-    }*/
+    hasUserDisliked: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true
+    }
 })
 
 export {Post}
+
+// Un Post à plusieurs Likes
+Post.hasMany(Like,{
+    onDelete: 'cascade',
+    foreignKey: { name: 'postId', allowNull: false},
+    hooks: true
+})
+
+// Un Like appartient à un Post
+Like.belongsTo(Post, {
+    onDelete: 'cascade',
+    foreignKey: { name: 'postId', allowNull: false },
+    hooks: true
+})

@@ -13,8 +13,8 @@ function validEmail() {
 function validPassword() {
     this.error.MsgPassword=""
     /* Vérifie le format du mot de passe */
-    if (! /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[-+!*$@%_])([-+!*$@%_\w]{8,20})$/.test(this.dataForm.password) || this.dataForm.password === null) {
-        this.error.MsgPassword = "Mot de passe au format invalide, il doit contenir entre 8 et 20 caractères, 1 majuscule, 1 chiffre et 1 caractère spécial."
+    if (! /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[-+!*$@%_#])([-+!*$@%_#\w]{8,20})$/.test(this.dataForm.password) || this.dataForm.password === null) {
+        this.error.MsgPassword = "Mot de passe au format invalide, il doit contenir entre 8 et 20 caractères, 1 majuscule, 1 chiffre et 1 caractère spécial (-+!*$@%_#)."
         return false
     }
     return true

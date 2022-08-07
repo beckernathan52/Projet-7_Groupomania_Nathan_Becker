@@ -12,36 +12,14 @@
 <script>
 import GetAllPosts from "@/components/Posts";
 import CreatePost from "@/components/CreatePost";
-import {useUserStore} from "@/store/user";
 
-//@click="nom de l'evenment" sur create post
 export default {
   name: `Home`,
   components: {
     CreatePost,
     GetAllPosts
   },
-  setup() {
-    const userStore = useUserStore()
-    return {
-      userStore
-    }
-  },
-  beforeMount() {
-    this.testerror()
-
-  },
-  methods: {
-    testerror () {
-      const test = this.userStore.user
-      console.log(test)
-
-    }
-  }
 }
-
-
-
 </script>
 
 <style scoped>

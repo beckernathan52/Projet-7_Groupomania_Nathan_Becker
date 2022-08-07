@@ -3,7 +3,7 @@ import jwtDecode from "jwt-decode";
 
 export const useUserStore = defineStore("user",{
     state: () => ({
-        token: "",
+        token: localStorage.getItem('token'),
     }),
     actions: {
         login(encodedToken) {
@@ -11,7 +11,7 @@ export const useUserStore = defineStore("user",{
             localStorage.setItem('token', encodedToken)
         },
         logout() {
-            this.token = ""
+            this.token = null
         },
     },
     getters: {

@@ -81,7 +81,6 @@ export default {
           const userStore = useUserStore()
           userStore.login(encodedToken)
 
-
           // Redirige l'utilisateur sur la page d'accueil
            await router.push({name: 'Home'})
         }
@@ -161,6 +160,7 @@ form button:hover{
 }
 
 form span{
+  margin-top: 20px;
   text-align: center;
   color: #FD2D01;
 }

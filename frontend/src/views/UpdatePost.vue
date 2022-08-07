@@ -17,27 +17,17 @@
         <p>{{error.MsgText}}</p>
         <label for="file"><i class="fa-solid fa-file"></i>Modifier votre image</label>
         <input id="file" type="file" @change="selectFile">
-        <figure v-if="post.filePicture !== 'defaultPostPicture.png'">
+        <figure v-if="post.filePicture !== ''">
           <img  :src="'http://localhost:3000/images/' + post.filePicture" :alt="post.filePicture">
         </figure>
       </div>
-      <div id="vote">
-        <div class="content-button">
+      <div class="content-button" id="options">
+      <span>
+        <button @click.prevent="updatePost"><i class="fa-solid fa-pen-to-square"></i>Modifier</button>
+      </span>
         <span>
-          <button><i class="fa-solid fa-thumbs-up"></i>J'aime</button>
-        </span>
-          <span>
-          <button><i class="fa-solid fa-thumbs-down"></i>Je n'aime pas</button>
-        </span>
-        </div>
-        <div class="content-button" id="options">
-        <span>
-          <button @click.prevent="updatePost"><i class="fa-solid fa-pen-to-square"></i>Modifier</button>
-        </span>
-          <span>
-          <button @click.prevent="cancelUpdate"><i class="fa-solid fa-ban"></i>Annuler</button>
-        </span>
-        </div>
+        <button @click.prevent="cancelUpdate"><i class="fa-solid fa-ban"></i>Annuler</button>
+      </span>
       </div>
     </article>
   </div>
@@ -85,7 +75,6 @@ export default {
 
     // Récupère le post à afficher
     async getOnePost() {
-
       // Récupère l'ID du post
       const postId = this.$route.params.id
 
@@ -96,6 +85,13 @@ export default {
         })
         // Récupère la réponse
         const post = await response.json()
+
+        // Si le token arrive à expiration l'utilisateur est redirigé vers la page de connexion
+        if (response.status === 401 && post.error === "Erreur authentification") {
+          alert("Votre session arrive à expiration, veuillez vous reconnecter.")
+          localStorage.clear()
+          await router.push({path:'/login'})
+        }
 
         // Reformate la date de création
         formattingDate(post)
@@ -142,6 +138,15 @@ export default {
             body: formData,
             headers: {"Authorization": `Bearer ${this.userStore.token}`}
           })
+
+          const responseMsg = await response.json()
+
+          // Si le token arrive à expiration l'utilisateur est redirigé vers la page de connexion
+          if (response.status === 401 && responseMsg.error === "Erreur authentification") {
+            alert("Votre session arrive à expiration, veuillez vous reconnecter.")
+            localStorage.clear()
+            await router.push({path:'/login'})
+          }
 
           if (response.status === 201) {
             alert("Votre publication a été modifiée avec succès!")
@@ -239,7 +244,6 @@ i{
   display: flex;
   flex-direction: column;
   position: relative;
-
 }
 
 .post-content textarea{
@@ -255,8 +259,8 @@ i{
   font-size: 12px;
 }
 
-.post-content figure{
-  margin: 0 0 20px 0;
+.post-content figure, #file {
+  margin: 0 0 10px 0px;
 }
 
 .post-content figure img{
@@ -264,16 +268,13 @@ i{
 }
 
 /* Boutons Like/Dislile, Modifier/Supprimer */
-#vote{
-  display: flex;
-  border-top: #FFD7D7 1px solid;
-}
-
 .content-button{
   width: 100%;
   padding: 5px;
   display: flex;
   justify-content: space-evenly;
+  border-top: #FFD7D7 1px solid;
+
 }
 
 .content-button span{
@@ -300,16 +301,9 @@ i{
   border-right: #FFD7D7 1px solid;
 }
 
-#options{
-  border-left: #FFD7D7 1px solid;
-}
 
   /* Tablette and Smartphone Version */
   @media screen and (max-width: 992px){
-    #vote{
-      flex-direction: column;
-    }
-
     .content{
       width: 85%;
       padding-top: 30px;

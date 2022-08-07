@@ -18,6 +18,7 @@
 import {useUserStore} from "@/store/user";
 import {usePostStore} from "@/store/post";
 import {formattingDate, validText} from "@/common/utils";
+import router from "@/router";
 
 export default {
   name: "CreatePost",
@@ -82,17 +83,21 @@ export default {
         // Récupération de la réponse
         const post = await response.json()
 
-        // Modifie le format de la date avant l'envoi au store
-        formattingDate(post)
+        // Si le token arrive à expiration l'utilisateur est redirigé vers la page de connexion
+        if (response.status === 401 && post.error === "Erreur authentification") {
+          alert("Votre session arrive à expiration, veuillez vous reconnecter.")
+          localStorage.clear()
+          await router.push({path:'/login'})
+        }
 
-        // Si la réponse est positive, envoi le nouveau Post au store
+        // Si la réponse est positive,
         if (response.status === 201) {
+          // Modifie le format de la date
+          formattingDate(post)
 
-          // this.$emit. nom de l'évenement, puis paramètres
-          //this.$emit('add-Post', post)
-
-          //this.posts.unshift(post)
+          // Envoi le nouveau Post au store
           this.postStore.setCreatedPost(post)
+
           // Réinitialise le formulaire
           this.$refs[`form`].reset()
           this.file = null

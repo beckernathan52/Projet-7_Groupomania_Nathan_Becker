@@ -2,7 +2,7 @@ import { Router } from "express";
 import {authentication} from "../middleware/auth.js";
 import {createPost, deletePost, getAllPosts, getOnePost, updatePost} from "../controllers/post.js"
 import { imgStorage } from '../middleware/multer-config.js'
-import {likeOrDislike, getAllLikes} from "../controllers/like.js";
+import {likeOrDislike} from "../controllers/like.js";
 
 // Création du routeur pour les Posts
 const routerPost = Router()
@@ -14,6 +14,5 @@ routerPost.get('/:id', authentication, getOnePost)
 routerPost.put('/:id', authentication, imgStorage, updatePost)
 routerPost.delete('/:id', authentication, deletePost)
 routerPost.post('/:id/like', authentication, likeOrDislike)
-routerPost.get('/all/likes', authentication, getAllLikes)
 
 export {routerPost}

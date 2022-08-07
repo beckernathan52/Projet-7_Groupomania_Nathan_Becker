@@ -12,9 +12,19 @@ const validateEmail = (req) => {
     return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(req.body.email)
 }
 
+// Vérification du format du nom
+const validateLastName = (req) => {
+    return /^([A-Za-zàáâäçèéêëìíîïñòóôöùúûü]{3,20})?([-]{0,1})?([A-Za-zàáâäçèéêëìíîïñòóôöùúûü]{3,20})$/.test(req.body.lastName)
+}
+
+// Vérification du format du prénom
+const validateFirstName = (req) => {
+    return /^([A-Za-zàáâäçèéêëìíîïñòóôöùúûü]{3,20})?([-]{0,1})?([A-Za-zàáâäçèéêëìíîïñòóôöùúûü]{3,20})$/.test(req.body.firstName)
+}
+
 // Vérification du format du mot de passe
 const validatePassword = (req) => {
-    return /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[-+!*$@%_])([-+!*$@%_\w]{8,20})$/.test(req.body.password)
+    return /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[-+!*$@%_#])([-+!*$@%_#\w]{8,20})$/.test(req.body.password)
 }
 
 // Inscription
@@ -22,6 +32,16 @@ const signup = async (req, res, next) => {
     // Vérifie si l'email et le mot de passe ont un format valide
     const emailValid = validateEmail(req)
     const passwordValid = validatePassword(req)
+    const firstNameValid = validateFirstName(req)
+    const lastNameValid = validateLastName(req)
+
+    if (!firstNameValid) {
+        return res.status(400).json({ error: 'Format prénom invalide !' })
+    }
+
+    if (!lastNameValid) {
+        return res.status(400).json({ error: 'Format nom invalide !' })
+    }
 
     if (!emailValid) {
         return res.status(400).json({ error: 'Format email invalide !' })

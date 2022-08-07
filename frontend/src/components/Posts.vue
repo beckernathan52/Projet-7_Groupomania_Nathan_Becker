@@ -12,17 +12,19 @@
     </div>
     <div class="post-content">
       <p>{{post.text}}</p>
-      <figure v-if="post.filePicture !== 'defaultPostPicture.png'">
+      <figure v-if="post.filePicture !== ''">
         <img  :src="'http://localhost:3000/images/' + post.filePicture" :alt="post.filePicture">
       </figure>
     </div>
     <div id="vote">
       <div class="content-button">
         <span>
-          <button class="btnLike" @click.prevent="likePost(post.id, $event)"><i class="fa-solid fa-thumbs-up"></i>J'aime</button>
+          <button ><i class="fa-solid fa-thumbs-up green"></i>J'aime</button>
+          <button @click.prevent="likePost(post)"><i class="fa-solid fa-thumbs-up"></i>J'aime</button>
         </span>
         <span>
-          <button class="btnDisLike" @click.prevent="dislikePost(post.id, $event)"><i class="fa-solid fa-thumbs-down"></i>Je n'aime pas</button>
+          <button  class="red" @click.prevent="dislikePost(post)"><i class="fa-solid fa-thumbs-down red"></i>Je n'aime pas</button>
+          <button  @click.prevent="dislikePost(post)"><i class="fa-solid fa-thumbs-down"></i>Je n'aime pas</button>
         </span>
       </div>
       <div class="content-button" id="options" v-if="authorizedUser(post.userId)">
@@ -58,13 +60,11 @@ export default {
   },
   data() {
     return {
-      likes: null
     }
   },
   async beforeMount() {
     // Affiche les posts et les likes à l'apparation de la page
     await this.displayPosts()
-    await this.getAllLikes()
   },
 
 
@@ -78,17 +78,31 @@ export default {
           headers: {"Authorization": `Bearer ${this.userStore.token}`}
         })
 
-        if (response.status === 404 || response.status === 500 || response.status === 401) {
+        // Récupère le tableau des posts
+        const dataPosts = await response.json()
+
+        // Si le token arrive à expiration l'utilisateur est redirigé vers la page de connexion
+        if (response.status === 401 && dataPosts.error === "Erreur authentification") {
+          alert("Votre session arrive à expiration, veuillez vous reconnecter.")
+          localStorage.clear()
+          await router.push({path:'/login'})
+        }
+
+        if (response.status !== 200) {
           return
         }
 
-        // Récupère le tableau des posts
-        const dataPosts = await response.json()
+
 
         // Modifie le format des dates de création
         dataPosts.forEach(post => {
           formattingDate(post)
         })
+
+
+
+
+
 
         // Envoi le tableau de posts au store
         this.postStore.setPosts(dataPosts)
@@ -120,6 +134,15 @@ export default {
             headers: {"Authorization": `Bearer ${this.userStore.token}`}
           })
 
+          const responseMsg = await response.json()
+
+          // Si le token arrive à expiration l'utilisateur est redirigé vers la page de connexion
+          if (response.status === 401 && responseMsg.error === "Erreur authentification") {
+            alert("Votre session arrive à expiration, veuillez vous reconnecter.")
+            localStorage.clear()
+            await router.push({path:'/login'})
+          }
+
           if (response.status === 200) {
             // Actualise le fil d'actualités
             this.postStore.deletePost(postId)
@@ -132,164 +155,108 @@ export default {
     },
 
     // LIKE
-    async likePost(postId, event) {
+    async likePost(post) {
       // Défini le like
       const newLike = {
         like: 1
       }
 
+
       try {
-        const response = await fetch(`http://localhost:3000/api/posts/${postId}/like`, {
+        const response = await fetch(`http://localhost:3000/api/posts/${post.id}/like`, {
           method: "Post",
           body: JSON.stringify(newLike),
           headers: {"Authorization": `Bearer ${this.userStore.token}`, "Content-Type": "application/json"}
         })
 
+        // Récupère le message de la réponse
+        const responseMsg = await response.json()
+
+        // Si le token arrive à expiration l'utilisateur est redirigé vers la page de connexion
+        if (response.status === 401 && responseMsg.error === "Erreur authentification") {
+          alert("Votre session arrive à expiration, veuillez vous reconnecter.")
+          localStorage.clear()
+          await router.push({path:'/login'})
+        }
+
         if (response.status === 404) {
           return
         }
 
-        // Récupère le message de la réponse
-        const responseMsg = await response.json()
 
-        // Récupère le bouton "J'aime"
-        const btnLike = event.target
+        post.Likes.find(like => like.postId === post.id && like.userId === this.userStore.user.userId && like.like === true)
 
-        // Si le post est liké, le boutton passe au vert
+        // Si le post est liké, le boutton "J'aime" passe au vert
         if (responseMsg.message === "Post liké !") {
-          btnLike.style.color = "green"
+          post.hasUserLiked = true
         }
 
-        // Si le like est annulé le boutton n'est plus vert
+        // Si le like est annulé le boutton "J'aime" est remis par défaut
         if (responseMsg.message === "Like annulé !") {
-          btnLike.style.color = ""
+          post.hasUserLiked = false
         }
 
         // Si le post est disliké et que l'utisateur like
         if (responseMsg.message === "Dislike annulé et like créé !") {
-          // Récupère le boutton "Je n'aime pas"
-          const divVote= event.target.parentNode.parentNode
-          const spanVote = divVote.children
-          const spanArray = Array.from(spanVote)
-          const spanDislike = Array.from(spanArray[1].children)
-          const btnDisLike = spanDislike[0]
-
-          // Le boutton dislike est remis par défaut, et le boutton like passe au vert
-          btnDisLike.style.color = ("")
-          btnLike.style.color = "green"
+          // Le boutton "Je n'aime pas" est remis par défaut, et le boutton "J'aime" passe au vert
+          post.hasUserDisliked = false
+          post.hasUserLiked = true
         }
+
       } catch (error) {
         console.log(error)
       }
     },
 
     // DISLIKE
-    async dislikePost(postId, event) {
+    async dislikePost(post) {
       // Défini le dislike
       const newLike = {
         like: -1
       }
 
       try {
-        const response = await fetch(`http://localhost:3000/api/posts/${postId}/like`, {
+        const response = await fetch(`http://localhost:3000/api/posts/${post.id}/like`, {
           method: "Post",
           body: JSON.stringify(newLike),
           headers: {"Authorization": `Bearer ${this.userStore.token}`, "Content-Type": "application/json"}
         })
 
+        // Récupère le message de la réponse
+        const responseMsg = await response.json()
+
+        // Si le token arrive à expiration l'utilisateur est redirigé vers la page de connexion
+        if (response.status === 401 && responseMsg.error === "Erreur authentification") {
+          alert("Votre session arrive à expiration, veuillez vous reconnecter.")
+          localStorage.clear()
+          await router.push({path:'/login'})
+        }
+
         if (response.status === 404) {
           return
         }
 
-        // Récupère le message de la réponse
-        const responseMsg = await response.json()
-
-        // Récupère le bouton "Je n'aime pas"
-        const btnDisLike = event.target
-
-        // Si le post est disliké, le boutton passe au rouge
+        // Si le post est disliké, le boutton "Je n'aime pas" passe au rouge
         if (responseMsg.message === 'Post disliké !') {
-          btnDisLike.style.color = "red"
+          post.hasUserDisliked = true
         }
 
-        // Si le like est annulé le bouton n'est plus vert
+        // Si le dislike est annulé le bouton "Je n'aime pas" est remis par défaut
         if (responseMsg.message === "Dislike annulé !") {
-          btnDisLike.style.color = ""
+          post.hasUserDisliked = false
         }
 
         // Si le post est liké et que l'utisateur dislike
         if (responseMsg.message === "Like annulé et dislike créé !") {
-          // Récupère le boutton "J'aime"
-          const divVote= event.target.parentNode.parentNode
-          const spanVote = divVote.children
-          const spanArray = Array.from(spanVote)
-          const spanLike = Array.from(spanArray[0].children)
-          const btnLike = spanLike[0]
-
-          // Le bouton dislike est remis par défaut, et le boutton like passe au vert
-          btnLike.style.color = ("")
-          btnDisLike.style.color = "red"
+          // Le bouton "J'aime" est remis par défaut, et le boutton "Je n'aime pas" passe au rouge
+          post.hasUserLiked = false
+          post.hasUserDisliked = true
         }
+
       } catch (error) {
         console.log(error)
       }
     },
-
-
-    async getAllLikes() {
-      try {
-        const response = await fetch(`http://localhost:3000/api/posts/all/likes`, {
-          method: "Get",
-          headers: {"Authorization": `Bearer ${this.userStore.token}`}
-        })
-
-        // Si la réponse est positive
-        if (response.status === 200) {
-          // Récupère tout les Likes/Dislikes
-          const allLikes = await response.json()
-
-          this.likes = allLikes
-
-          //console.log(allLikes)
-          const btnLike = document.getElementsByClassName("btnLike")
-          const btnLikeIcon = document.getElementsByClassName("btnLikeIcon")
-          const btnDislike = document.getElementsByClassName("btnDisLike")
-          const btnDislikeIcon = document.getElementsByClassName("btnDisLikeIcon")
-
-
-
-          // pour chaque like
-          allLikes.forEach(like => {
-
-            if (like.Post.userId === this.userStore.user.userId /*&& like.postId === like.Post.id*/) {
-
-
-
-
-              if (like.like === true) {
-
-                /*const btnLikeArray = Array.from(btnLike)
-                btnLikeArray.forEach(btn =>
-                    console.log(btn.style)
-
-                )*/
-                //btnLike.style.color = ('green')
-                //btnLikeIcon.classList.toggle('green')
-
-
-              } else if (like.like === -1) {
-
-                //btnDislike.classList.toggle('red')
-                //btnDislikeIcon.classList.toggle('red')
-              }
-            }
-          })
-        }
-      } catch (error) {
-        console.log(error)
-      }
-    }
-
   },
 }
 </script>

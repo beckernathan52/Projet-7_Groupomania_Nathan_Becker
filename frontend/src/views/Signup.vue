@@ -61,7 +61,7 @@ export default {
     // Vérifie le format du prénom
     validFirstName() {
       this.error.MsgFirstName = ""
-      if (! /^([A-Za-z]{3,20})?([-]{0,1})?([A-Za-z]{3,20})$/.test(this.dataForm.firstName) || this.dataForm.firstName === null) {
+      if (! /^([A-Za-zàáâäçèéêëìíîïñòóôöùúûü]{3,20})?([-]{0,1})?([A-Za-zàáâäçèéêëìíîïñòóôöùúûü]{3,20})$/.test(this.dataForm.firstName) || this.dataForm.firstName === null) {
         this.error.MsgFirstName = "Prénom au format incorrect."
         return false
       }
@@ -71,12 +71,14 @@ export default {
     // Vérifie le format du nom
     validLastName() {
       this.error.MsgLastName = ""
-      if (! /^([A-Za-z]{3,20})?([-]{0,1})?([A-Za-z]{3,20})$/.test(this.dataForm.lastName ) || this.dataForm.lastName === null) {
+      if (! /^([A-Za-zàáâäçèéêëìíîïñòóôöùúûü]{3,20})?([-]{0,1})?([A-Za-zàáâäçèéêëìíîïñòóôöùúûü]{3,20})$/.test(this.dataForm.lastName ) || this.dataForm.lastName === null) {
         this.error.MsgLastName = "Nom au format incorrect."
         return false
       }
       return true
     },
+
+    // Inscription
     async signup () {
       // Récupération des informations saisies par l'utilisateur
       const data = {

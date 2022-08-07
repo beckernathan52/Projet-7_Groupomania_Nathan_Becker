@@ -63,7 +63,7 @@ const createPost = async (req, res) => {
             newPost = await Post.create({
                 text: postText,
                 userId: req.auth.userId,
-                filePicture: postImg.filename
+                filePicture: postImg.filename,
             })
         }
         // Sauvegarde du post
@@ -117,7 +117,7 @@ const updatePost = async (req, res) => {
         // Si la requête contient une image
         if (postImg) {
             // Si un post contient uniquement du texte et qu'on souhaite lui ajouter une image
-            if (postExist.filePicture === 'defaultPostPicture.png') {
+            if (postExist.filePicture === '') {
                 // Post mis à jour avec une nouvelle image
                 postObject = {
                     text: postText,
@@ -174,7 +174,7 @@ const deletePost = async (req, res) => {
         }
 
         // Si le post contient une image
-        if (postExist.filePicture !== 'defaultPostPicture.png') {
+        if (postExist.filePicture !== '') {
             fs.unlink(`images/${postExist.filePicture}`, error => {
                 if (error) throw error;
                 console.log('Image effacée !')
@@ -225,8 +225,9 @@ const getOnePost = async (req, res) => {
 // Récupération de l'ensemble des Posts
 const getAllPosts = async (req, res) => {
     try{
+
         // Récupère les Posts en ordre décroissant via la date de création
-        const allPosts = await Post.findAll( {order: [['createdAt', 'DESC']], include: User}) //[User, Like]
+        const allPosts = await Post.findAll( {order: [['createdAt', 'DESC']], include: [{model: User}, {model: Like, required: false}]}) //[User, Like]
 
         if (!allPosts.length) {
             return res.status(404).json({ error: "Aucun post n'a été trouvé."})
@@ -236,6 +237,10 @@ const getAllPosts = async (req, res) => {
         allPosts.forEach(post => {
             deleteSentitiveInfos(post)
         })
+
+        //const test = allPosts.find(post => post.Likes.find(like => like.userId === req.auth.userId && post.id === like.postId))
+
+        //console.log(test, 'IIIIIIIIIIIIIIIIIIIICCCCCCCCIIIIIIIIIIII')
 
         res.status(200).json(allPosts)
     } catch (error) {

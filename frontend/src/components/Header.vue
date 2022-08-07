@@ -67,19 +67,19 @@ img{
   object-fit: cover;
 }
 
-/* Tablette Version */
-@media screen and (max-width: 992px){
-  header{
-    flex-direction: column;
-    padding: 20px 20px 10px 20px;
-    align-content: center;
+  /* Tablette Version */
+  @media screen and (max-width: 992px){
+    header{
+      flex-direction: column;
+      padding: 20px 20px 10px 20px;
+      align-content: center;
+    }
+    header nav{
+      margin-top: 20px;
+      width: 100%;
+      display: flex;
+      justify-content: space-evenly;
+    }
   }
-  header nav{
-    margin-top: 20px;
-    width: 100%;
-    display: flex;
-    justify-content: space-evenly;
-  }
-}
 </style>
 
