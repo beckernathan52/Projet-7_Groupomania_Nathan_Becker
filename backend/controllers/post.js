@@ -70,7 +70,7 @@ const createPost = async (req, res) => {
         await newPost.save()
 
         // Récupération du post crée
-        post = await Post.findOne({where: {id: newPost.id}, include:User})
+        post = await Post.findOne({where: {id: newPost.id, userId: req.auth.userId}, include:User})
 
         // Supprime l'email et le mot de passe du créateur
         deleteSentitiveInfos(post)
@@ -144,7 +144,7 @@ const updatePost = async (req, res) => {
             postObject = {text: postText}
         }
 
-        await Post.update(postObject, {where: {id: req.params.id} }, {where: {userId: req.auth.userId}})
+        await Post.update(postObject, {where: {id: req.params.id, userId: req.auth.userId}})
         res.status(201).json({ message: 'Post modifié !'})
 
     } catch (error) {
@@ -225,9 +225,8 @@ const getOnePost = async (req, res) => {
 // Récupération de l'ensemble des Posts
 const getAllPosts = async (req, res) => {
     try{
-
         // Récupère les Posts en ordre décroissant via la date de création
-        const allPosts = await Post.findAll( {order: [['createdAt', 'DESC']], include: [{model: User}, {model: Like, required: false}]}) //[User, Like]
+        const allPosts = await Post.findAll( {order: [['createdAt', 'DESC']], include: [{model: User}, {model: Like, required: false}]})
 
         if (!allPosts.length) {
             return res.status(404).json({ error: "Aucun post n'a été trouvé."})
@@ -237,10 +236,6 @@ const getAllPosts = async (req, res) => {
         allPosts.forEach(post => {
             deleteSentitiveInfos(post)
         })
-
-        //const test = allPosts.find(post => post.Likes.find(like => like.userId === req.auth.userId && post.id === like.postId))
-
-        //console.log(test, 'IIIIIIIIIIIIIIIIIIIICCCCCCCCIIIIIIIIIIII')
 
         res.status(200).json(allPosts)
     } catch (error) {

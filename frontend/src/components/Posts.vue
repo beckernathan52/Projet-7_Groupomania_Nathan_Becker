@@ -7,7 +7,7 @@
       </figure>
       <div>
         <h3>{{post.User.firstName}} {{post.User.lastName}} </h3>
-        <span>Publié le {{ post.createdAt }}</span>
+        <span>Publié le {{post.createdAt}}</span>
       </div>
     </div>
     <div class="post-content">
@@ -19,12 +19,12 @@
     <div id="vote">
       <div class="content-button">
         <span>
-          <button ><i class="fa-solid fa-thumbs-up green"></i>J'aime</button>
-          <button @click.prevent="likePost(post)"><i class="fa-solid fa-thumbs-up"></i>J'aime</button>
+          <button v-if="post.hasUserLiked" class="green" @click.prevent="likePost(post)"><i class="fa-solid fa-thumbs-up green"></i>J'aime</button>
+          <button v-if="!post.hasUserLiked" @click.prevent="likePost(post)"><i class="fa-solid fa-thumbs-up"></i>J'aime</button>
         </span>
         <span>
-          <button  class="red" @click.prevent="dislikePost(post)"><i class="fa-solid fa-thumbs-down red"></i>Je n'aime pas</button>
-          <button  @click.prevent="dislikePost(post)"><i class="fa-solid fa-thumbs-down"></i>Je n'aime pas</button>
+          <button v-if="post.hasUserDisliked" class="red" @click.prevent="dislikePost(post)"><i class="fa-solid fa-thumbs-down red"></i>Je n'aime pas</button>
+          <button v-if="!post.hasUserDisliked" @click.prevent="dislikePost(post)"><i class="fa-solid fa-thumbs-down"></i>Je n'aime pas</button>
         </span>
       </div>
       <div class="content-button" id="options" v-if="authorizedUser(post.userId)">
@@ -58,15 +58,11 @@ export default {
       postStore
     }
   },
-  data() {
-    return {
-    }
-  },
+
   async beforeMount() {
     // Affiche les posts et les likes à l'apparation de la page
     await this.displayPosts()
   },
-
 
   methods: {
 
@@ -92,17 +88,26 @@ export default {
           return
         }
 
-
-
         // Modifie le format des dates de création
         dataPosts.forEach(post => {
           formattingDate(post)
         })
 
-
-
-
-
+        // Pour chaque post, affiche les boutons "J'aime/Je n'aime pas" en couleur, et en fonction de l'utilisateur connecté
+        dataPosts.forEach(post => {
+          if (post.Likes.find(like => like.like === true && like.userId === this.userStore.user.userId)) {
+            post.hasUserLiked = true
+          }
+          if (!post.Likes.find(like => like.like === true && like.userId === this.userStore.user.userId)) {
+            post.hasUserLiked = false
+          }
+          if (post.Likes.find(like => like.like === -1 && like.userId === this.userStore.user.userId)) {
+            post.hasUserDisliked = true
+          }
+          if (!post.Likes.find(like => like.like === -1 && like.userId === this.userStore.user.userId)) {
+            post.hasUserDisliked = false
+          }
+        })
 
         // Envoi le tableau de posts au store
         this.postStore.setPosts(dataPosts)
@@ -112,7 +117,7 @@ export default {
       }
     },
 
-    // Vérfie si l'utilisateur est le créateur du Post
+    // Vérfie si l'utilisateur est le créateur du Post ou Admin
     authorizedUser (postUserId) {
       const authUser = this.userStore.user.userId
       const adminUser = this.userStore.user.isAdmin
@@ -161,7 +166,6 @@ export default {
         like: 1
       }
 
-
       try {
         const response = await fetch(`http://localhost:3000/api/posts/${post.id}/like`, {
           method: "Post",
@@ -182,9 +186,6 @@ export default {
         if (response.status === 404) {
           return
         }
-
-
-        post.Likes.find(like => like.postId === post.id && like.userId === this.userStore.user.userId && like.like === true)
 
         // Si le post est liké, le boutton "J'aime" passe au vert
         if (responseMsg.message === "Post liké !") {
