@@ -26,10 +26,6 @@ const User = database.define("User" , {
         type: DataTypes.STRING,
         allowNull: false
     },
-    profilePic: {
-        type: DataTypes.STRING,
-        defaultValue: 'defaultUserProfile.png'
-    },
     isAdmin: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
@@ -56,7 +52,5 @@ Like.belongsTo(User, {
     foreignKey: { name: 'userId', allowNull: false },
     hooks: true
 })
-
-
 
 export {User}

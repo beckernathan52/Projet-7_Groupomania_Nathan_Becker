@@ -14,7 +14,6 @@ const Post = database.define("Post" , {
     },
     filePicture: {
         type: DataTypes.STRING,
-        defaultValue: '',
         allowNull: true
     },
     hasUserLiked: {

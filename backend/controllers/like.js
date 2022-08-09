@@ -18,11 +18,15 @@ const likeOrDislike = async (req, res) => {
     const userId = req.auth.userId
     const like = req.body.like
 
-    try{
+    try {
         // Vérifie si le post existe
         const postExist = await checkPostExist(req)
         if (!postExist) {
-            res.status(404).json({ error: "Aucun post n'a été trouvé."})
+            return res.status(404).json({ error: "Aucun post n'a été trouvé."})
+        }
+
+        if (like !== 1 && like !== -1) {
+            return res.status(403).json({ error: "Requête incorrecte, votre demande est erronée."})
         }
 
         // Vérifie si le le vote existe

@@ -4,7 +4,7 @@
     <div class="input-group">
       <label for="message"><i class="fa-solid fa-pen-to-square"></i>Écrivez une publication</label>
       <input id="message" type="text" placeholder="Écrivez une publication" name="text" v-model="dataForm.text" @input="validText">
-      <p>{{error.MsgText}}</p>
+      <p>{{ error.msgText }}</p>
     </div>
     <label for="file"><i class="fa-solid fa-file"></i>Ajouter une image</label>
     <input id="file" type="file" @change="selectFile">
@@ -17,8 +17,7 @@
 <script>
 import {useUserStore} from "@/store/user";
 import {usePostStore} from "@/store/post";
-import {formattingDate, validText} from "@/common/utils";
-import router from "@/router";
+import {formattingDate, ifTokenExpirate, validText} from "@/common/utils";
 
 export default {
   name: "CreatePost",
@@ -37,12 +36,9 @@ export default {
         file: null
       },
       error: {
-        MsgText: null
+        msgText: null
       },
     }
-  },
-  props: {
-    post: {}
   },
   methods: {
     // Séléctionne l'image
@@ -84,11 +80,7 @@ export default {
         const post = await response.json()
 
         // Si le token arrive à expiration l'utilisateur est redirigé vers la page de connexion
-        if (response.status === 401 && post.error === "Erreur authentification") {
-          alert("Votre session arrive à expiration, veuillez vous reconnecter.")
-          localStorage.clear()
-          await router.push({path:'/login'})
-        }
+        await ifTokenExpirate(response, post)
 
         // Si la réponse est positive,
         if (response.status === 201) {

@@ -26,6 +26,7 @@ const storage = multer.diskStorage({
     }
 })
 
+// Filtre les fichiers selon leur format
 const fileFilter = (req, file, callback) => {
     if((file.mimetype).includes('jpeg') || (file.mimetype).includes('png') || (file.mimetype).includes('jpg')){
         callback(null, true);

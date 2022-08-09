@@ -17,7 +17,7 @@
         <p>{{error.MsgText}}</p>
         <label for="file"><i class="fa-solid fa-file"></i>Modifier votre image</label>
         <input id="file" type="file" @change="selectFile">
-        <figure v-if="post.filePicture !== ''">
+        <figure v-if="post.filePicture">
           <img  :src="'http://localhost:3000/images/' + post.filePicture" :alt="post.filePicture">
         </figure>
       </div>
@@ -36,7 +36,7 @@
 <script>
 import {useUserStore} from "@/store/user";
 import {usePostStore} from "@/store/post";
-import {formattingDate} from "@/common/utils";
+import {formattingDate, ifTokenExpirate} from "@/common/utils";
 import router from "@/router";
 
 export default {
@@ -87,11 +87,7 @@ export default {
         const post = await response.json()
 
         // Si le token arrive à expiration l'utilisateur est redirigé vers la page de connexion
-        if (response.status === 401 && post.error === "Erreur authentification") {
-          alert("Votre session arrive à expiration, veuillez vous reconnecter.")
-          localStorage.clear()
-          await router.push({path:'/login'})
-        }
+        await ifTokenExpirate(response, post)
 
         // Reformate la date de création
         formattingDate(post)
@@ -142,11 +138,7 @@ export default {
           const responseMsg = await response.json()
 
           // Si le token arrive à expiration l'utilisateur est redirigé vers la page de connexion
-          if (response.status === 401 && responseMsg.error === "Erreur authentification") {
-            alert("Votre session arrive à expiration, veuillez vous reconnecter.")
-            localStorage.clear()
-            await router.push({path:'/login'})
-          }
+          await ifTokenExpirate(response, responseMsg)
 
           if (response.status === 201) {
             alert("Votre publication a été modifiée avec succès!")
