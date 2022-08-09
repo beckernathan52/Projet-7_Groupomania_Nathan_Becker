@@ -14,7 +14,6 @@ const Post = database.define("Post" , {
     },
     filePicture: {
         type: DataTypes.STRING,
-        defaultValue: '',
         allowNull: true
     },
     hasUserLiked: {
@@ -27,7 +26,6 @@ const Post = database.define("Post" , {
     }
 })
 
-export {Post}
 
 // Un Post à plusieurs Likes
 Post.hasMany(Like,{
@@ -42,3 +40,5 @@ Like.belongsTo(Post, {
     foreignKey: { name: 'postId', allowNull: false },
     hooks: true
 })
+
+export {Post}

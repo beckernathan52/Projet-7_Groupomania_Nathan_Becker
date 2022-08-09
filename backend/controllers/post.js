@@ -69,8 +69,8 @@ const createPost = async (req, res) => {
         // Sauvegarde du post
         await newPost.save()
 
-        // Récupération du post crée
-        post = await Post.findOne({where: {id: newPost.id}, include:User})
+        // Récupération du post crée avec les informations du créateur
+        post = await Post.findOne({where: {id: newPost.id, userId: req.auth.userId}, include:User})
 
         // Supprime l'email et le mot de passe du créateur
         deleteSentitiveInfos(post)
@@ -82,7 +82,6 @@ const createPost = async (req, res) => {
         console.log(error)
     }
 }
-
 
 
 // Modification d'un Post
@@ -117,7 +116,7 @@ const updatePost = async (req, res) => {
         // Si la requête contient une image
         if (postImg) {
             // Si un post contient uniquement du texte et qu'on souhaite lui ajouter une image
-            if (postExist.filePicture === '') {
+            if (!postExist.filePicture) {
                 // Post mis à jour avec une nouvelle image
                 postObject = {
                     text: postText,
@@ -144,7 +143,7 @@ const updatePost = async (req, res) => {
             postObject = {text: postText}
         }
 
-        await Post.update(postObject, {where: {id: req.params.id} }, {where: {userId: req.auth.userId}})
+        await Post.update(postObject, {where: {id: req.params.id}})
         res.status(201).json({ message: 'Post modifié !'})
 
     } catch (error) {
@@ -174,7 +173,7 @@ const deletePost = async (req, res) => {
         }
 
         // Si le post contient une image
-        if (postExist.filePicture !== '') {
+        if (postExist.filePicture) {
             fs.unlink(`images/${postExist.filePicture}`, error => {
                 if (error) throw error;
                 console.log('Image effacée !')
@@ -225,9 +224,8 @@ const getOnePost = async (req, res) => {
 // Récupération de l'ensemble des Posts
 const getAllPosts = async (req, res) => {
     try{
-
         // Récupère les Posts en ordre décroissant via la date de création
-        const allPosts = await Post.findAll( {order: [['createdAt', 'DESC']], include: [{model: User}, {model: Like, required: false}]}) //[User, Like]
+        const allPosts = await Post.findAll( {order: [['createdAt', 'DESC']], include: [{model: User}, {model: Like, required: false}]})
 
         if (!allPosts.length) {
             return res.status(404).json({ error: "Aucun post n'a été trouvé."})
@@ -238,9 +236,21 @@ const getAllPosts = async (req, res) => {
             deleteSentitiveInfos(post)
         })
 
-        //const test = allPosts.find(post => post.Likes.find(like => like.userId === req.auth.userId && post.id === like.postId))
-
-        //console.log(test, 'IIIIIIIIIIIIIIIIIIIICCCCCCCCIIIIIIIIIIII')
+        // Pour chaque post, affiche les boutons "J'aime/Je n'aime pas" en couleur selon le statut du like/dislike, et en fonction de l'utilisateur connecté
+        allPosts.forEach(post => {
+            if (post.Likes.find(like => like.like === true && like.userId === req.auth.userId)) {
+                post.hasUserLiked = true
+            }
+            if (!post.Likes.find(like => like.like === true && like.userId === req.auth.userId)) {
+                post.hasUserLiked = false
+            }
+            if (post.Likes.find(like => like.like === -1 && like.userId === req.auth.userId)) {
+                post.hasUserDisliked = true
+            }
+            if (!post.Likes.find(like => like.like === -1 && like.userId === req.auth.userId)) {
+                post.hasUserDisliked = false
+            }
+        })
 
         res.status(200).json(allPosts)
     } catch (error) {

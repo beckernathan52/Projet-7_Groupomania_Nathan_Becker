@@ -20,9 +20,8 @@ export default {
 body{
   max-width: 1200px;
   margin: 0 auto;
-
 }
-a{
+a {
   text-decoration: none;
 }
 nav a {

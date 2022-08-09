@@ -1,4 +1,6 @@
 // Vérification de l'email
+import router from "@/router";
+
 function validEmail() {
     this.error.MsgEmail = ""
     //eslint-disable-next-line
@@ -20,6 +22,7 @@ function validPassword() {
     return true
 }
 
+// Vérification de la validité du text
 function validText() {
     this.error.MsgText = ""
     if (!this.dataForm.text?.trim()) {
@@ -29,14 +32,26 @@ function validText() {
     return true
 }
 
+// Applique le format de date 'Fr'
 function formattingDate(post) {
     post.createdAt = post.createdAt.split('.')[0]
     const hours = post.createdAt.split('T')[1]
     const date = post.createdAt.split('T')[0]
-    post.createdAt = date + " à " + hours
+    const year = date.split('-')[0]
+    const month = date.split('-')[1]
+    const day = date.split('-')[2]
+    post.createdAt = day + "/" + month + "/" + year + " à " + hours
+}
+
+// Si le token arrive à expiration l'utilisateur est redirigé vers la page de connexion
+async function ifTokenExpirate (response, responseMsg) {
+    // Si le token arrive à expiration l'utilisateur est redirigé vers la page de connexion
+    if (response.status === 401 && responseMsg.error === "Erreur authentification") {
+        alert("Votre session arrive à expiration, veuillez vous reconnecter.")
+        localStorage.clear()
+        await router.push({path:'/login'})
+    }
 }
 
 
-
-
-export {validEmail, validPassword, formattingDate, validText}
+export {validEmail, validPassword, formattingDate, validText, ifTokenExpirate}

@@ -26,6 +26,7 @@ export default {
     }
   },
   methods: {
+    // Déconnexion
     logout() {
       this.userStore.logout()
       router.push({ path: '/login' })

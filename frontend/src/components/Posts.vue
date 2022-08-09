@@ -7,24 +7,22 @@
       </figure>
       <div>
         <h3>{{post.User.firstName}} {{post.User.lastName}} </h3>
-        <span>Publié le {{ post.createdAt }}</span>
+        <span>Publié le {{post.createdAt}}</span>
       </div>
     </div>
     <div class="post-content">
       <p>{{post.text}}</p>
-      <figure v-if="post.filePicture !== ''">
+      <figure v-if="post.filePicture">
         <img  :src="'http://localhost:3000/images/' + post.filePicture" :alt="post.filePicture">
       </figure>
     </div>
     <div id="vote">
       <div class="content-button">
         <span>
-          <button ><i class="fa-solid fa-thumbs-up green"></i>J'aime</button>
-          <button @click.prevent="likePost(post)"><i class="fa-solid fa-thumbs-up"></i>J'aime</button>
+          <button :class="{'green': post.hasUserLiked}" @click.prevent="likeOrDislikePost(post, like = 1)"><i :class="{'green': post.hasUserLiked}" class="fa-solid fa-thumbs-up"></i>J'aime</button>
         </span>
         <span>
-          <button  class="red" @click.prevent="dislikePost(post)"><i class="fa-solid fa-thumbs-down red"></i>Je n'aime pas</button>
-          <button  @click.prevent="dislikePost(post)"><i class="fa-solid fa-thumbs-down"></i>Je n'aime pas</button>
+          <button :class="{'red': post.hasUserDisliked}"  @click.prevent="likeOrDislikePost(post, like = -1)"><i :class="{'red': post.hasUserDisliked}" class="fa-solid fa-thumbs-down"></i>Je n'aime pas</button>
         </span>
       </div>
       <div class="content-button" id="options" v-if="authorizedUser(post.userId)">
@@ -45,7 +43,7 @@
 <script>
 import {useUserStore} from "@/store/user";
 import {usePostStore} from "@/store/post";
-import {formattingDate} from "@/common/utils";
+import {formattingDate, ifTokenExpirate} from "@/common/utils";
 import router from "@/router";
 
 export default {
@@ -58,15 +56,11 @@ export default {
       postStore
     }
   },
-  data() {
-    return {
-    }
-  },
+
   async beforeMount() {
     // Affiche les posts et les likes à l'apparation de la page
     await this.displayPosts()
   },
-
 
   methods: {
 
@@ -82,27 +76,16 @@ export default {
         const dataPosts = await response.json()
 
         // Si le token arrive à expiration l'utilisateur est redirigé vers la page de connexion
-        if (response.status === 401 && dataPosts.error === "Erreur authentification") {
-          alert("Votre session arrive à expiration, veuillez vous reconnecter.")
-          localStorage.clear()
-          await router.push({path:'/login'})
-        }
+        await ifTokenExpirate(response, dataPosts)
 
         if (response.status !== 200) {
           return
         }
 
-
-
-        // Modifie le format des dates de création
+        // Modifie le format des dates de création en "Fr"
         dataPosts.forEach(post => {
           formattingDate(post)
         })
-
-
-
-
-
 
         // Envoi le tableau de posts au store
         this.postStore.setPosts(dataPosts)
@@ -112,7 +95,7 @@ export default {
       }
     },
 
-    // Vérfie si l'utilisateur est le créateur du Post
+    // Vérfie si l'utilisateur est le créateur du Post ou Admin
     authorizedUser (postUserId) {
       const authUser = this.userStore.user.userId
       const adminUser = this.userStore.user.isAdmin
@@ -137,11 +120,7 @@ export default {
           const responseMsg = await response.json()
 
           // Si le token arrive à expiration l'utilisateur est redirigé vers la page de connexion
-          if (response.status === 401 && responseMsg.error === "Erreur authentification") {
-            alert("Votre session arrive à expiration, veuillez vous reconnecter.")
-            localStorage.clear()
-            await router.push({path:'/login'})
-          }
+          await ifTokenExpirate(response, responseMsg)
 
           if (response.status === 200) {
             // Actualise le fil d'actualités
@@ -154,13 +133,12 @@ export default {
       }
     },
 
-    // LIKE
-    async likePost(post) {
+    // LIKE/DISLIKE
+    async likeOrDislikePost(post, like) {
       // Défini le like
       const newLike = {
-        like: 1
+        like: like
       }
-
 
       try {
         const response = await fetch(`http://localhost:3000/api/posts/${post.id}/like`, {
@@ -173,18 +151,13 @@ export default {
         const responseMsg = await response.json()
 
         // Si le token arrive à expiration l'utilisateur est redirigé vers la page de connexion
-        if (response.status === 401 && responseMsg.error === "Erreur authentification") {
-          alert("Votre session arrive à expiration, veuillez vous reconnecter.")
-          localStorage.clear()
-          await router.push({path:'/login'})
-        }
+        await ifTokenExpirate(response, responseMsg)
 
         if (response.status === 404) {
           return
         }
 
-
-        post.Likes.find(like => like.postId === post.id && like.userId === this.userStore.user.userId && like.like === true)
+        //////////// Affichage des boutons en couleur selon le statut ////////////
 
         // Si le post est liké, le boutton "J'aime" passe au vert
         if (responseMsg.message === "Post liké !") {
@@ -201,39 +174,6 @@ export default {
           // Le boutton "Je n'aime pas" est remis par défaut, et le boutton "J'aime" passe au vert
           post.hasUserDisliked = false
           post.hasUserLiked = true
-        }
-
-      } catch (error) {
-        console.log(error)
-      }
-    },
-
-    // DISLIKE
-    async dislikePost(post) {
-      // Défini le dislike
-      const newLike = {
-        like: -1
-      }
-
-      try {
-        const response = await fetch(`http://localhost:3000/api/posts/${post.id}/like`, {
-          method: "Post",
-          body: JSON.stringify(newLike),
-          headers: {"Authorization": `Bearer ${this.userStore.token}`, "Content-Type": "application/json"}
-        })
-
-        // Récupère le message de la réponse
-        const responseMsg = await response.json()
-
-        // Si le token arrive à expiration l'utilisateur est redirigé vers la page de connexion
-        if (response.status === 401 && responseMsg.error === "Erreur authentification") {
-          alert("Votre session arrive à expiration, veuillez vous reconnecter.")
-          localStorage.clear()
-          await router.push({path:'/login'})
-        }
-
-        if (response.status === 404) {
-          return
         }
 
         // Si le post est disliké, le boutton "Je n'aime pas" passe au rouge

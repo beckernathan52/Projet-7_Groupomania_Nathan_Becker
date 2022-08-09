@@ -28,7 +28,7 @@ const validatePassword = (req) => {
 }
 
 // Inscription
-const signup = async (req, res, next) => {
+const signup = async (req, res) => {
     // Vérifie si l'email et le mot de passe ont un format valide
     const emailValid = validateEmail(req)
     const passwordValid = validatePassword(req)
@@ -38,11 +38,9 @@ const signup = async (req, res, next) => {
     if (!firstNameValid) {
         return res.status(400).json({ error: 'Format prénom invalide !' })
     }
-
     if (!lastNameValid) {
         return res.status(400).json({ error: 'Format nom invalide !' })
     }
-
     if (!emailValid) {
         return res.status(400).json({ error: 'Format email invalide !' })
     }
@@ -68,7 +66,7 @@ const signup = async (req, res, next) => {
             firstName: req.body.firstName,
             isAdmin: req.body.isAdmin,
             id: req.body.id,
-        });
+        })
 
         // Sauvegarde des informations de l'utilisateur
         await user.save()
@@ -82,7 +80,7 @@ const signup = async (req, res, next) => {
 }
 
 // Connexion
-const login = async (req, res, next) => {
+const login = async (req, res) => {
     // Vérifie si l'email et le mot de passe ont un format valide
     const emailValid = validateEmail(req)
     const passwordValid = validatePassword(req)
@@ -112,7 +110,7 @@ const login = async (req, res, next) => {
         }
 
         // Si le mot de passe et l'email sont valide
-        res.status(200).json({isAdmin: userFound.isAdmin, userId: userFound.id, token: jwt.sign({ userId: userFound.id, isAdmin: userFound.isAdmin }, process.env.RANDOM_TOKEN, { expiresIn: '24h' })})
+        res.status(200).json({ token: jwt.sign({ userId: userFound.id, isAdmin: userFound.isAdmin }, process.env.RANDOM_TOKEN, { expiresIn: '24h' })})
 
     } catch (error) {
         res.status(500).json()
@@ -120,16 +118,4 @@ const login = async (req, res, next) => {
     }
 }
 
-const getAllUsers = async (req, res, next) => {
-    try {
-        const users = await User.findAll()
-
-        res.status(200).json(users)
-    } catch (error) {
-        res.status(500).json()
-        console.log(error)
-    }
-}
-
-// Exportation
 export {signup, login}

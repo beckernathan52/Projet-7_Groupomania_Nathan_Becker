@@ -8,7 +8,7 @@ Projet n°7: "Créez un réseau social d'entreprise", Parcours "Développeur Web
 
 - After this, run <code>npm install</code> for installing all the dependencies.
 
-- Then run <code>nodemon server</code>.
+- Then run <code>npm start</code>.
 
 
 <h2>Frontend</h2>
